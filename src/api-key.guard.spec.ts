@@ -1,6 +1,6 @@
-import { ApiKeyGuard, API_KEY_GUARD_METADATA_KEY } from './api-key.guard';
-import { Reflector } from '@nestjs/core';
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { API_KEY_GUARD_METADATA_KEY, ApiKeyGuard } from './api-key.guard';
 
 function makeContext(
   headers: Record<string, string | undefined>,
@@ -24,8 +24,8 @@ describe('ApiKeyGuard', () => {
 
   beforeEach(() => {
     // Limpar variáveis de ambiente mutáveis entre testes
-    delete process.env.API_KEY;
-    delete process.env.API_KEYS;
+    process.env.API_KEY = undefined;
+    process.env.API_KEYS = undefined;
   });
 
   it('deve lançar Unauthorized (401) quando header ausente', () => {
@@ -56,11 +56,7 @@ describe('ApiKeyGuard', () => {
   });
 
   it('deve aceitar query param quando allowQueryParam habilitado', () => {
-    const ctx = makeContext(
-      {},
-      { api_key: 'abc' },
-      { keys: ['abc'], allowQueryParam: true },
-    );
+    const ctx = makeContext({}, { api_key: 'abc' }, { keys: ['abc'], allowQueryParam: true });
     expect(guard.canActivate(ctx)).toBe(true);
   });
 });

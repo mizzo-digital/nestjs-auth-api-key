@@ -1,11 +1,11 @@
 import {
-  CanActivate,
-  ExecutionContext,
+  type CanActivate,
+  type ExecutionContext,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import type { Reflector } from '@nestjs/core';
 
 export const API_KEY_GUARD_METADATA_KEY = 'API_KEY_GUARD_CONFIG';
 
@@ -48,20 +48,12 @@ export class ApiKeyGuard implements CanActivate {
       Request & { query?: Record<string, any>; headers?: Record<string, any> }
     >();
 
-    const provided = this.extractProvidedKey(
-      request,
-      headerName,
-      allowQueryParam,
-    );
+    const provided = this.extractProvidedKey(request, headerName, allowQueryParam);
     if (!provided) {
       throw new UnauthorizedException('API key header missing');
     }
 
-    const allowed = this.resolveAllowedKeys(
-      config.keys,
-      envVarNames,
-      caseInsensitive,
-    );
+    const allowed = this.resolveAllowedKeys(config.keys, envVarNames, caseInsensitive);
 
     const isValid = this.validateKey(provided, allowed, caseInsensitive);
     if (!isValid) {
@@ -77,12 +69,8 @@ export class ApiKeyGuard implements CanActivate {
   ): string | undefined {
     const headers = request.headers || {};
     // Normalizar todos os headers para acesso case insensitive
-    const normalizedHeaderKey = Object.keys(headers).find(
-      (h) => h.toLowerCase() === headerName,
-    );
-    let value: unknown = normalizedHeaderKey
-      ? headers[normalizedHeaderKey]
-      : undefined;
+    const normalizedHeaderKey = Object.keys(headers).find((h) => h.toLowerCase() === headerName);
+    let value: unknown = normalizedHeaderKey ? headers[normalizedHeaderKey] : undefined;
     if (!value && allowQueryParam) {
       const query = request.query || {};
       value = query.api_key || query.apiKey || query.key;
@@ -90,9 +78,7 @@ export class ApiKeyGuard implements CanActivate {
     if (Array.isArray(value)) {
       value = value[0];
     }
-    return typeof value === 'string' && value.trim() !== ''
-      ? value.trim()
-      : undefined;
+    return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
   }
 
   private resolveAllowedKeys(
@@ -101,7 +87,7 @@ export class ApiKeyGuard implements CanActivate {
     caseInsensitive: boolean,
   ): string[] {
     const keys: string[] = [];
-    if (explicitKeys && explicitKeys.length) {
+    if (explicitKeys?.length) {
       keys.push(...explicitKeys.map((k) => k.trim()).filter(Boolean));
     }
     // Fallback ambiente
@@ -115,17 +101,11 @@ export class ApiKeyGuard implements CanActivate {
         .filter(Boolean);
       keys.push(...parts);
     }
-    const unique = Array.from(
-      new Set(keys.map((k) => (caseInsensitive ? k.toLowerCase() : k))),
-    );
+    const unique = Array.from(new Set(keys.map((k) => (caseInsensitive ? k.toLowerCase() : k))));
     return unique;
   }
 
-  private validateKey(
-    provided: string,
-    allowed: string[],
-    caseInsensitive: boolean,
-  ): boolean {
+  private validateKey(provided: string, allowed: string[], caseInsensitive: boolean): boolean {
     if (!allowed.length) return false; // Se nenhuma chave configurada, negar por segurança
     const candidate = caseInsensitive ? provided.toLowerCase() : provided;
     return allowed.includes(candidate);
