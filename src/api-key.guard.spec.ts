@@ -23,39 +23,39 @@ describe('ApiKeyGuard', () => {
   const guard = new ApiKeyGuard(reflector);
 
   beforeEach(() => {
-    // Limpar variáveis de ambiente mutáveis entre testes
+    // Clear mutable environment variables between tests
     process.env.API_KEY = undefined;
     process.env.API_KEYS = undefined;
   });
 
-  it('deve lançar Unauthorized (401) quando header ausente', () => {
+  it('should throw Unauthorized (401) when header is missing', () => {
     const ctx = makeContext({}, {}, { keys: ['abc'] });
     expect(() => guard.canActivate(ctx)).toThrow(UnauthorizedException);
   });
 
-  it('deve lançar Forbidden (403) quando chave inválida', () => {
-    const ctx = makeContext({ 'x-api-key': 'errada' }, {}, { keys: ['certa'] });
+  it('should throw Forbidden (403) when key is invalid', () => {
+    const ctx = makeContext({ 'x-api-key': 'wrong' }, {}, { keys: ['correct'] });
     expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
   });
 
-  it('deve permitir acesso com chave válida explícita', () => {
+  it('should allow access with explicit valid key', () => {
     const ctx = makeContext({ 'x-api-key': 'token' }, {}, { keys: ['token'] });
     expect(guard.canActivate(ctx)).toBe(true);
   });
 
-  it('deve aceitar chave via variável de ambiente (API_KEYS)', () => {
+  it('should accept key via environment variable (API_KEYS)', () => {
     process.env.API_KEYS = 'a,b,c';
-    const ctx = makeContext({ 'x-api-key': 'b' }, {}); // Sem keys explícitas
-    // Metadata vazio => fallback env
+    const ctx = makeContext({ 'x-api-key': 'b' }, {}); // Without explicit keys
+    // Empty metadata => env fallback
     expect(() => guard.canActivate(ctx)).not.toThrow();
   });
 
-  it('deve falhar se nenhuma chave configurada ou em env', () => {
-    const ctx = makeContext({ 'x-api-key': 'qualquer' }, {}); // Sem metadata nem env
+  it('should fail if no keys configured or in env', () => {
+    const ctx = makeContext({ 'x-api-key': 'any' }, {}); // Without metadata or env
     expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
   });
 
-  it('deve aceitar query param quando allowQueryParam habilitado', () => {
+  it('should accept query param when allowQueryParam is enabled', () => {
     const ctx = makeContext({}, { api_key: 'abc' }, { keys: ['abc'], allowQueryParam: true });
     expect(guard.canActivate(ctx)).toBe(true);
   });

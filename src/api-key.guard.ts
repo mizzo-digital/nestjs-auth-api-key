@@ -10,15 +10,15 @@ import type { Reflector } from '@nestjs/core';
 export const API_KEY_GUARD_METADATA_KEY = 'API_KEY_GUARD_CONFIG';
 
 export interface ApiKeyGuardConfig {
-  /** Nome do header da API Key. Default: x-api-key */
+  /** API Key header name. Default: x-api-key */
   headerName?: string;
-  /** Lista de chaves válidas explícitas. */
+  /** List of explicit valid keys. */
   keys?: string[];
-  /** Permitir buscar também via query param (?api_key=). Default: false */
+  /** Allow fetching via query param (?api_key=). Default: false */
   allowQueryParam?: boolean;
-  /** Nomes de variáveis de ambiente para fallback. Default: ['API_KEY','API_KEYS'] */
+  /** Environment variable names for fallback. Default: ['API_KEY','API_KEYS'] */
   envKeysVariableNames?: string[];
-  /** Comparação case insensitive das chaves. Default: true */
+  /** Case insensitive key comparison. Default: true */
   caseInsensitive?: boolean;
 }
 
@@ -68,7 +68,7 @@ export class ApiKeyGuard implements CanActivate {
     allowQueryParam: boolean,
   ): string | undefined {
     const headers = request.headers || {};
-    // Normalizar todos os headers para acesso case insensitive
+    // Normalize all headers for case-insensitive access
     const normalizedHeaderKey = Object.keys(headers).find((h) => h.toLowerCase() === headerName);
     let value: unknown = normalizedHeaderKey ? headers[normalizedHeaderKey] : undefined;
     if (!value && allowQueryParam) {
@@ -90,11 +90,11 @@ export class ApiKeyGuard implements CanActivate {
     if (explicitKeys?.length) {
       keys.push(...explicitKeys.map((k) => k.trim()).filter(Boolean));
     }
-    // Fallback ambiente
+    // Environment fallback
     for (const name of envVarNames) {
       const raw = process.env[name];
       if (!raw) continue;
-      // Pode ser uma única chave ou lista separada por vírgula/ espaço / ponto e vírgula
+      // Can be a single key or a list separated by comma/space/semicolon
       const parts = raw
         .split(/[;,\s]+/)
         .map((p) => p.trim())
@@ -106,7 +106,7 @@ export class ApiKeyGuard implements CanActivate {
   }
 
   private validateKey(provided: string, allowed: string[], caseInsensitive: boolean): boolean {
-    if (!allowed.length) return false; // Se nenhuma chave configurada, negar por segurança
+    if (!allowed.length) return false; // If no keys configured, deny for security
     const candidate = caseInsensitive ? provided.toLowerCase() : provided;
     return allowed.includes(candidate);
   }

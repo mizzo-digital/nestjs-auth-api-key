@@ -2,9 +2,9 @@ import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { API_KEY_GUARD_METADATA_KEY, ApiKeyGuard, type ApiKeyGuardConfig } from './api-key.guard';
 
 /**
- * Decorator para proteger endpoint com validação de API Key.
- * Exemplo:
- *   @ApiKeyProtected({ keys: ['minha-chave'] })
+ * Decorator to protect endpoints with API Key validation.
+ * Example:
+ *   @ApiKeyProtected({ keys: ['my-key'] })
  *   @Get('secure')
  *   findSecure() {}
  */
