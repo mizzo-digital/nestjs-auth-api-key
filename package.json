@@ -1,6 +1,6 @@
 {
   "name": "nestjs-auth-api-key",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "The API Key Guard provides a flexible and secure mechanism for protecting NestJS endpoints using API key authentication. It supports multiple authentication methods (header and query parameter), environment-based configuration, and seamless integration with Swagger documentation.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -33,8 +33,16 @@
     "type": "git",
     "url": "git+https://github.com/mizzo-digital/nestjs-auth-api-key.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nestjs",
+    "api-key",
+    "authentication",
+    "guard",
+    "security",
+    "swagger",
+    "openapi"
+  ],
+  "author": "Mizzo",
   "license": "MIT",
   "type": "commonjs",
   "bugs": {
