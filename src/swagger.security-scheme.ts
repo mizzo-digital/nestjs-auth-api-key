@@ -1,4 +1,4 @@
-export const enum SWAGGER_SECURITY_SCHEME {
+export enum SWAGGER_SECURITY_SCHEME {
   API_KEY_HEADER = 'ApiKeyHeader',
   API_KEY_QUERY = 'ApiKeyQuery',
 }
