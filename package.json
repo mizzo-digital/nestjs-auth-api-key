@@ -1,0 +1,70 @@
+{
+  "name": "nestjs-auth-api-key",
+  "version": "0.0.1",
+  "description": "The API Key Guard provides a flexible and secure mechanism for protecting NestJS endpoints using API key authentication. It supports multiple authentication methods (header and query parameter), environment-based configuration, and seamless integration with Swagger documentation.",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "npm run build:cjs && npm run build:esm",
+    "test": "jest",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write",
+    "format:check": "biome format",
+    "biome:check": "biome check --no-errors-on-unmatched --write",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizzo-digital/nestjs-auth-api-key.git"
+  },
+  "keywords": [
+    "nestjs",
+    "api-key",
+    "authentication",
+    "guard",
+    "security",
+    "swagger",
+    "openapi"
+  ],
+  "author": "Mizzo",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mizzo-digital/nestjs-auth-api-key/issues"
+  },
+  "homepage": "https://github.com/mizzo-digital/nestjs-auth-api-key#readme",
+  "dependencies": {
+    "@nestjs/common": "^11.1.9",
+    "@nestjs/core": "^11.1.9",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.8",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.0.1",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
+    "ts-jest": "^29.4.6",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,24 +1,24 @@
 import {
-  CanActivate,
-  ExecutionContext,
+  type CanActivate,
+  type ExecutionContext,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import type { Reflector } from '@nestjs/core';
 
 export const API_KEY_GUARD_METADATA_KEY = 'API_KEY_GUARD_CONFIG';
 
 export interface ApiKeyGuardConfig {
-  /** Nome do header da API Key. Default: x-api-key */
+  /** API Key header name. Default: x-api-key */
   headerName?: string;
-  /** Lista de chaves válidas explícitas. */
+  /** List of explicit valid keys. */
   keys?: string[];
-  /** Permitir buscar também via query param (?api_key=). Default: false */
+  /** Allow fetching via query param (?api_key=). Default: false */
   allowQueryParam?: boolean;
-  /** Nomes de variáveis de ambiente para fallback. Default: ['API_KEY','API_KEYS'] */
+  /** Environment variable names for fallback. Default: ['API_KEY','API_KEYS'] */
   envKeysVariableNames?: string[];
-  /** Comparação case insensitive das chaves. Default: true */
+  /** Case insensitive key comparison. Default: true */
   caseInsensitive?: boolean;
 }
 
@@ -48,20 +48,12 @@ export class ApiKeyGuard implements CanActivate {
       Request & { query?: Record<string, any>; headers?: Record<string, any> }
     >();
 
-    const provided = this.extractProvidedKey(
-      request,
-      headerName,
-      allowQueryParam,
-    );
+    const provided = this.extractProvidedKey(request, headerName, allowQueryParam);
     if (!provided) {
       throw new UnauthorizedException('API key header missing');
     }
 
-    const allowed = this.resolveAllowedKeys(
-      config.keys,
-      envVarNames,
-      caseInsensitive,
-    );
+    const allowed = this.resolveAllowedKeys(config.keys, envVarNames, caseInsensitive);
 
     const isValid = this.validateKey(provided, allowed, caseInsensitive);
     if (!isValid) {
@@ -76,13 +68,9 @@ export class ApiKeyGuard implements CanActivate {
     allowQueryParam: boolean,
   ): string | undefined {
     const headers = request.headers || {};
-    // Normalizar todos os headers para acesso case insensitive
-    const normalizedHeaderKey = Object.keys(headers).find(
-      (h) => h.toLowerCase() === headerName,
-    );
-    let value: unknown = normalizedHeaderKey
-      ? headers[normalizedHeaderKey]
-      : undefined;
+    // Normalize all headers for case-insensitive access
+    const normalizedHeaderKey = Object.keys(headers).find((h) => h.toLowerCase() === headerName);
+    let value: unknown = normalizedHeaderKey ? headers[normalizedHeaderKey] : undefined;
     if (!value && allowQueryParam) {
       const query = request.query || {};
       value = query.api_key || query.apiKey || query.key;
@@ -90,9 +78,7 @@ export class ApiKeyGuard implements CanActivate {
     if (Array.isArray(value)) {
       value = value[0];
     }
-    return typeof value === 'string' && value.trim() !== ''
-      ? value.trim()
-      : undefined;
+    return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
   }
 
   private resolveAllowedKeys(
@@ -101,32 +87,26 @@ export class ApiKeyGuard implements CanActivate {
     caseInsensitive: boolean,
   ): string[] {
     const keys: string[] = [];
-    if (explicitKeys && explicitKeys.length) {
+    if (explicitKeys?.length) {
       keys.push(...explicitKeys.map((k) => k.trim()).filter(Boolean));
     }
-    // Fallback ambiente
+    // Environment fallback
     for (const name of envVarNames) {
       const raw = process.env[name];
       if (!raw) continue;
-      // Pode ser uma única chave ou lista separada por vírgula/ espaço / ponto e vírgula
+      // Can be a single key or a list separated by comma/space/semicolon
       const parts = raw
         .split(/[;,\s]+/)
         .map((p) => p.trim())
         .filter(Boolean);
       keys.push(...parts);
     }
-    const unique = Array.from(
-      new Set(keys.map((k) => (caseInsensitive ? k.toLowerCase() : k))),
-    );
+    const unique = Array.from(new Set(keys.map((k) => (caseInsensitive ? k.toLowerCase() : k))));
     return unique;
   }
 
-  private validateKey(
-    provided: string,
-    allowed: string[],
-    caseInsensitive: boolean,
-  ): boolean {
-    if (!allowed.length) return false; // Se nenhuma chave configurada, negar por segurança
+  private validateKey(provided: string, allowed: string[], caseInsensitive: boolean): boolean {
+    if (!allowed.length) return false; // If no keys configured, deny for security
     const candidate = caseInsensitive ? provided.toLowerCase() : provided;
     return allowed.includes(candidate);
   }
