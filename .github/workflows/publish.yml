@@ -5,13 +5,12 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  id-token: write  # Required for OIDC
-  pull-requests: write
 
 jobs:
   release-please:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -24,6 +23,8 @@ jobs:
           release-type: node
 
   publish-npm:
+    permissions:
+      id-token: write  # Required for OIDC
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     runs-on: ubuntu-latest
