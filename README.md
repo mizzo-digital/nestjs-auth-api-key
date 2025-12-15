@@ -1,5 +1,6 @@
 # Nestjs Auth API Key
 
+
 ## Overview
 
 The API Key Guard provides a flexible and secure mechanism for protecting NestJS endpoints using API key authentication. It supports multiple authentication methods (header and query parameter), environment-based configuration, and seamless integration with Swagger documentation.
